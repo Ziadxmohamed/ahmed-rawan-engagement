@@ -6,6 +6,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import App from "../src/App";
 import { event } from "../src/config";
@@ -18,6 +19,14 @@ import {
 } from "../src/lib/journey";
 vi.mock("../src/three/World", () => ({
   default: () => <div data-testid="world" />,
+}));
+vi.mock("../src/lib/audio", () => ({
+  InvitationAudio: class {
+    play = vi.fn().mockResolvedValue(undefined);
+    pause = vi.fn();
+    chime = vi.fn();
+    dispose = vi.fn();
+  },
 }));
 beforeEach(() => {
   window.history.replaceState({}, "", "/?guest=محمد");
@@ -62,6 +71,14 @@ describe("the complete invitation flow", () => {
       behavior: "instant",
     });
     await screen.findByTestId("world");
+  });
+  it("starts music automatically without requiring a music start button", async () => {
+    render(<App />);
+    expect(screen.queryByRole("button", { name: "Music off" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Play music/ })).toBeNull();
+    expect(
+      await screen.findByRole("button", { name: "Mute music" }),
+    ).toBeTruthy();
   });
   it("keeps the same chapter when mobile browser chrome expands or collapses", async () => {
     render(<App />);
@@ -255,17 +272,19 @@ describe("the complete invitation flow", () => {
     document.body.style.removeProperty("margin");
     document.documentElement.style.removeProperty("scroll-padding-top");
   });
-  it("keeps keyboard focus within the card while the background is locked", () => {
+  it("keeps keyboard focus within the card while the background is locked", async () => {
     render(<App />);
     fireEvent.click(
       screen.getByRole("link", { name: "Read the invitation directly" }),
     );
     const close = screen.getByRole("button", { name: "Close invitation" });
-    const share = screen.getByRole("button", { name: "Share Invitation" });
+    const mute = await within(
+      screen.getByRole("dialog", { name: "Engagement invitation" }),
+    ).findByRole("button", { name: "Mute music" });
     close.focus();
     fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
-    expect(document.activeElement).toBe(share);
-    fireEvent.keyDown(share, { key: "Tab" });
+    expect(document.activeElement).toBe(mute);
+    fireEvent.keyDown(mute, { key: "Tab" });
     expect(document.activeElement).toBe(close);
     expect(
       document.querySelector(".journey-header")?.hasAttribute("inert"),

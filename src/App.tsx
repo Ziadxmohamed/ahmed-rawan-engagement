@@ -29,7 +29,7 @@ import {
   segmentLengths,
   scrollUnit,
 } from "./lib/journey";
-import { InvitationAudio } from "./lib/audio";
+import { useInvitationMusic } from "./lib/useInvitationMusic";
 import { scenes } from "./story";
 import Invitation from "./components/Invitation";
 import SceneFallback from "./components/SceneFallback";
@@ -58,8 +58,6 @@ class WorldBoundary extends Component<
 }
 export default function App() {
   const [pose, setPose] = useState(() => journeyAt(0)),
-    [music, setMusic] = useState(false),
-    [audioError, setAudioError] = useState(""),
     [invited, setInvited] = useState(false);
   const [failed, setFailed] = useState(
     () => new URLSearchParams(window.location.search).get("lite") === "1",
@@ -74,8 +72,20 @@ export default function App() {
     cardDialog = useRef<HTMLDivElement>(null),
     invitationActive = useRef(invited);
   invitationActive.current = invited;
-  const audio = useRef<InvitationAudio | null>(null),
-    journey = useRef<HTMLElement>(null),
+  const {
+    phase: musicPhase,
+    hasPlayed,
+    muted,
+    toggleMute,
+    chime,
+  } = useInvitationMusic();
+  const audioStatus =
+    musicPhase === "blocked"
+      ? "الموسيقى تبدأ مع أول لمسة على الصفحة"
+      : musicPhase === "unavailable"
+        ? "تعذّر تشغيل الموسيقى حاليًا"
+        : "";
+  const journey = useRef<HTMLElement>(null),
     viewport = useRef<HTMLDivElement>(null),
     copy = useRef<HTMLDivElement>(null);
   const [introAnchors, setIntroAnchors] = useState({
@@ -146,23 +156,9 @@ export default function App() {
     document.addEventListener("visibilitychange", listener);
     return () => document.removeEventListener("visibilitychange", listener);
   }, []);
-  useEffect(
-    () => () => {
-      audio.current?.dispose();
-    },
-    [],
-  );
   useEffect(() => {
-    if (!visible) audio.current?.pause();
-    else if (music)
-      void audio.current?.play().catch(() => {
-        setMusic(false);
-        setAudioError("Audio is unavailable in this browser.");
-      });
-  }, [visible, music]);
-  useEffect(() => {
-    if (story && pose.announcement) audio.current?.chime();
-  }, [story, pose.scene, pose.announcement]);
+    if (story && pose.announcement) chime();
+  }, [story, pose.scene, pose.announcement, chime]);
   useEffect(() => {
     if (reduced || !copy.current) return;
     const ctx = gsap.context(() => {
@@ -195,7 +191,6 @@ export default function App() {
     });
   }
   function start() {
-    if (!music) void toggleMusic();
     goTo(chapterStart(0), false);
   }
   function replay() {
@@ -296,22 +291,6 @@ export default function App() {
       chapterStart(pose.scene) + next * segmentLengths[pose.scene + 1],
       true,
     );
-  }
-  async function toggleMusic() {
-    if (music) {
-      audio.current?.pause();
-      setMusic(false);
-    } else {
-      try {
-        audio.current?.dispose();
-        audio.current = new InvitationAudio();
-        await audio.current.play();
-        setMusic(true);
-        setAudioError("");
-      } catch {
-        setAudioError("Audio is unavailable. The whole story is subtitled.");
-      }
-    }
   }
   const openProgress = envelope
     ? Math.max(0, Math.min(1, (pose.progress - 0.1) / 0.75))
@@ -607,12 +586,23 @@ export default function App() {
                   inert={!invited}
                 >
                   <Invitation embedded active={invited} onReplay={replay} />
+                  {hasPlayed && (
+                    <button
+                      className="text-link card-music-control"
+                      onClick={toggleMute}
+                      aria-pressed={muted}
+                      aria-label={muted ? "Unmute music" : "Mute music"}
+                    >
+                      {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                      {muted ? "Unmute music" : "Mute music"}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
-            {audioError && (
-              <p className="audio-status" role="status">
-                {audioError}
+            {audioStatus && (
+              <p className="audio-status" role="status" lang="ar" dir="rtl">
+                {audioStatus}
               </p>
             )}
           </div>
@@ -658,16 +648,18 @@ export default function App() {
             >
               <Wind size={18} />
             </button>
-            <button
-              className="music-toggle"
-              onClick={toggleMusic}
-              aria-pressed={music}
-              aria-label={`Music ${music ? "on" : "off"}`}
-              title={`Turn music ${music ? "off" : "on"}`}
-            >
-              {music ? <Volume2 size={17} /> : <VolumeX size={17} />}
-              <span>Sound {music ? "on" : "off"}</span>
-            </button>
+            {hasPlayed && (
+              <button
+                className="music-toggle"
+                onClick={toggleMute}
+                aria-pressed={muted}
+                aria-label={muted ? "Unmute music" : "Mute music"}
+                title={muted ? "Unmute music" : "Mute music"}
+              >
+                {muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
+                <span>{muted ? "Unmute" : "Mute"}</span>
+              </button>
+            )}
             <button
               className="header-invitation"
               onClick={invited ? read : skip}

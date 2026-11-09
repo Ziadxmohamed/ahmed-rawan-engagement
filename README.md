@@ -53,7 +53,7 @@ The designs are fictional and do not claim to depict the real couple. Approved l
 
 The experience respects system reduced motion and has a manual motion toggle. Reduced motion keeps scroll-based chapter changes while removing camera drift, gait and entrance effects. WebGL is lazy-loaded, pixel density and particle count adapt to small screens, and rendering pauses in hidden tabs and after reaching the invitation. The invitation, full story transcript, sharing and calendar controls remain usable without WebGL; there is also a JavaScript-free invitation in the HTML.
 
-Fonts are self-hosted Tajawal and Cormorant Garamond under the SIL Open Font License; notices are in `licenses/`. The instrumental is an original 54-second piano-and-strings miniature, rendered from the score in `scripts/compose_music.py` and delivered as a 624 KB AAC file. It starts only after an explicit start or sound interaction, with no recordings or commercial music.
+Fonts are self-hosted Tajawal and Cormorant Garamond under the SIL Open Font License; notices are in `licenses/`. The instrumental is an original 54-second piano-and-strings miniature, rendered from the score in `scripts/compose_music.py` and delivered as a 624 KB AAC file. It attempts playback when the page opens. When the browser blocks autoplay, an ordinary tap/click or keyboard interaction retries playback directly inside the activation handler; no dedicated play button is required. Some browsers require a tap rather than a scroll gesture. Music pauses in hidden tabs and resumes on return; an intentional mute is preserved. Mute controls are available in the footer and in the open invitation. No recordings or commercial music are used.
 
 ## Publish
 

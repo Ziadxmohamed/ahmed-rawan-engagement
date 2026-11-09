@@ -2,7 +2,7 @@
 
 Passed locally:
 
-- 31 automated tests across event timing/calendar/sharing, scroll mapping and UI behavior.
+- 39 automated tests across event timing/calendar/sharing, scroll mapping and UI behavior.
 - Cairo start: Friday, November 13, 2026, 20:00 local = 18:00 UTC.
 - Forward and reverse chapter navigation, exact Arabic dialogue, named character bubbles and general guest addressing.
 - Automatic invitation reveal inside the same viewport, with an explicit regression assertion that no `scrollIntoView` jump occurs.
@@ -33,3 +33,5 @@ Current browser review: Chrome's mobile emulation opened the invitation automati
 The heart QR now uses burgundy QR-style modules to form the complete heart silhouette on ivory. Its central data matrix remains intact; surrounding modules are decorative. The finished PNG is decoded at 1600, 1000, 700 and 480px widths, plus a 700px JPEG at quality 75 rotated 7 degrees. Every check must return the canonical invitation URL before the export is written.
 
 Apple Vision independently decoded the final full-size PNG to `https://ahmed-rawan2026.pages.dev/`. This is a local image-decoder check, not a physical phone camera test.
+
+Automatic music update: autoplay is attempted when the app mounts, then retried directly inside page activation handlers if blocked. A dedicated play button is no longer required. Regression tests cover initial autoplay, a blocked first touch, a later accepted tap, a still-pending initial request, visibility pause/resume, intentional mute, recoverable failure and listener cleanup. Mute is available in the footer and inside the modal invitation. Chrome initially displayed the tap hint, then reported “Audio playing” after an ordinary page interaction and exposed the mute control; no music start control was clicked. Playback on physical iOS/Android hardware has not been tested. Browser restrictions can still require a tap rather than a scroll gesture.

@@ -2360,3 +2360,13 @@ select:focus-visible {
   max-width: 100%;
   overflow-wrap: anywhere;
 }
+
+.card-music-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 0 auto 22px;
+  color: #735032;
+  font-size: 11px;
+}

@@ -1,5 +1,5 @@
 /** Original 54-second piano and strings miniature, composed in scripts/compose_music.py.
- * No recordings, samples or third-party melody. The file is fetched only after interaction. */
+ * No recordings, samples or third-party melody. Playback is attempted on load and retried directly in user-activation handlers. */
 export class InvitationAudio {
   private player?: HTMLAudioElement;
   private context?: AudioContext;
@@ -7,10 +7,10 @@ export class InvitationAudio {
     this.player ??= new Audio("/music/our-next-chapter.m4a");
     this.player.loop = true;
     this.player.volume = 0.42;
-    this.player.preload = "none";
+    this.player.preload = "auto";
     try {
       this.context ??= new AudioContext();
-      void this.context.resume();
+      void this.context.resume().catch(() => {});
     } catch {
       /* The recorded original still works without Web Audio. */
     }
@@ -53,6 +53,6 @@ export class InvitationAudio {
       this.player.removeAttribute("src");
       this.player.load();
     }
-    void this.context?.close();
+    void this.context?.close().catch(() => {});
   }
 }
