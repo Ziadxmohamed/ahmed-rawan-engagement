@@ -15,7 +15,7 @@ export const event = {
   tagline: "Every Beautiful Forever Has a Beginning.",
   arabic: "بكل الحب والفرحة، مستنيينكم تشاركونا بداية حكايتنا.",
   siteUrl:
-    import.meta.env?.VITE_SITE_URL || "https://our-next-chapter-ar.pages.dev",
+    import.meta.env?.VITE_SITE_URL || "https://ahmed-rawan2026.pages.dev",
   get title(): string {
     return `${this.groom} & ${this.bride} — Our Next Chapter`;
   },

@@ -10,7 +10,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "social": "node scripts/social.mjs",
-    "prebuild": "node scripts/calendar.mjs && node scripts/social.mjs"
+    "prebuild": "node scripts/calendar.mjs && node scripts/social.mjs && node scripts/heart-qr.mjs",
+    "qr": "node scripts/heart-qr.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.0",
@@ -33,6 +34,8 @@
     "@vitejs/plugin-react": "^5.0.0",
     "axe-core": "^4.14.0",
     "jsdom": "^31.0.0",
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
     "sharp": "^0.35.5",
     "typescript": "~5.9.0",
     "vite": "^7.1.0",

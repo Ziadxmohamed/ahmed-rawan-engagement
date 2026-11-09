@@ -59,7 +59,7 @@ Fonts are self-hosted Tajawal and Cormorant Garamond under the SIL Open Font Lic
 
 Repository: https://github.com/Ziadxmohamed/ahmed-rawan-engagement
 
-Target Pages project: `our-next-chapter-ar`. Vite build command: `npm run build`. Output: `dist`. Set `NODE_VERSION=24` for hosted builds. Deployment integration status is recorded in `docs/DEPLOYMENT.md` after verification.
+Target Pages project: `ahmed-rawan2026`. Vite build command: `npm run build`. Output: `dist`. Set `NODE_VERSION=24` for hosted builds. Deployment integration status is recorded in `docs/DEPLOYMENT.md` after verification.
 
 For a direct upload:
 
@@ -67,7 +67,7 @@ For a direct upload:
 npm ci
 npm test
 npm run build
-npx wrangler pages deploy dist --project-name our-next-chapter-ar --branch main
+npx wrangler pages deploy dist --project-name ahmed-rawan2026 --branch main
 ```
 
 Only deploy to this project. Do not overwrite another Pages project, add a domain or alter DNS.
@@ -75,3 +75,7 @@ Only deploy to this project. Do not overwrite another Pages project, add a domai
 ## Verification
 
 `npm test` covers time conversion, countdown rollover, calendar serialization, sharing URLs, forward/reverse scroll mapping, automatic invitation opening, general guest addressing, named speech bubbles, RSVP removal and invitation closing and structural accessibility with axe. TypeScript and the production build are required checks. Actual device behavior and browser-specific app handoff must be checked on target devices; automated DOM tests do not certify those behaviors.
+
+## Heart QR image
+
+The shareable heart design is `public/heart-qr.png` (1600 × 1800). Run `npm run qr` to regenerate it, or let the standard build do so. The build decodes the finished image and checks that its content is the configured canonical invitation URL. The full QR and its quiet zone are preserved inside the heart so the decorative shape does not damage scannability.
