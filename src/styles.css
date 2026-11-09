@@ -1669,12 +1669,6 @@ select:focus-visible {
 .tail-right .bubble-tail {
   right: 24%;
 }
-.anchored-bubble.from-left {
-  margin-left: 75px;
-}
-.anchored-bubble.from-right {
-  margin-left: -75px;
-}
 .phone-bubble small {
   display: block;
   font-size: 10px;
@@ -1750,14 +1744,6 @@ select:focus-visible {
 }
 .fallback-actor.speaking {
   transform: translateY(-3px);
-}
-.fallback-actor .character-bubble {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 250px;
-  max-width: 70vw;
 }
 .fallback-cast.cast-3 {
   width: min(900px, 82vw);
@@ -1869,12 +1855,6 @@ select:focus-visible {
   .bubble-name {
     font-size: 12px;
   }
-  .anchored-bubble.from-left {
-    margin-left: 45px;
-  }
-  .anchored-bubble.from-right {
-    margin-left: -45px;
-  }
   .message-phone .character-bubble {
     width: 185px;
   }
@@ -1891,13 +1871,6 @@ select:focus-visible {
     width: 99vw;
     height: 35%;
     bottom: 25%;
-  }
-  .fallback-actor .character-bubble {
-    width: 210px;
-    left: 60%;
-  }
-  .fallback-actor:last-child .character-bubble {
-    left: 40%;
   }
   .phase-story .chapter-copy {
     top: 15%;
@@ -2033,13 +2006,7 @@ select:focus-visible {
 .embedded-invitation .rsvp-row {
   margin-top: 24px;
 }
-.invitation-back {
-  display: flex;
-  width: fit-content;
-  margin: 0 auto 25px;
-  color: #735032;
-  font-size: 11px;
-}
+
 .invitation-overlay:not(.fully-open) {
   overflow: hidden;
 }
@@ -2297,15 +2264,23 @@ select:focus-visible {
     display: inline;
   }
 }
-/* Keep the native page scroll alive through both directions of the story. */
+/* The card stays modal until its explicit close control is used. */
 .journey-viewport.invitation-open {
-  position: sticky;
-  inset: auto;
-  top: 0;
+  position: fixed;
+  inset: 0;
   z-index: 12;
 }
+.invitation-dialog {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.invitation-dialog .invitation-close {
+  pointer-events: auto;
+}
 .invitation-overlay {
-  overscroll-behavior: auto;
+  overscroll-behavior: contain;
 }
 .invitation-overlay.fully-open {
   touch-action: pan-y;
@@ -2350,4 +2325,38 @@ select:focus-visible {
   margin-top: 13px;
   font-size: 15px;
   min-height: 49px;
+}
+
+/* Speech projects from its speaker, with a measured safe margin on every screen. */
+.screen-speech {
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+.screen-speech .character-bubble {
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.screen-speech .bubble-tail {
+  left: calc(var(--bubble-tail-x, 50%) - 9px);
+  right: auto;
+}
+.screen-phone .message-phone {
+  transform: none;
+  animation: dialogue-in 0.4s ease both;
+}
+.fallback-dialogue {
+  position: absolute;
+  bottom: 100%;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  pointer-events: none;
+}
+.fallback-dialogue.speaker-right {
+  justify-content: flex-end;
+}
+.fallback-dialogue .character-bubble {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }

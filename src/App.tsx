@@ -4,9 +4,11 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
+  type KeyboardEvent,
 } from "react";
 import {
   ArrowDown,
@@ -68,8 +70,10 @@ export default function App() {
     [visible, setVisible] = useState(!document.hidden),
     [onStage, setOnStage] = useState(true);
   const returnPoint = useRef(0),
-    openedByScroll = useRef(false),
-    cardTouch = useRef(0);
+    pendingReturn = useRef<number | null>(null),
+    cardDialog = useRef<HTMLDivElement>(null),
+    invitationActive = useRef(invited);
+  invitationActive.current = invited;
   const audio = useRef<InvitationAudio | null>(null),
     journey = useRef<HTMLElement>(null),
     viewport = useRef<HTMLDivElement>(null),
@@ -118,7 +122,7 @@ export default function App() {
       frame = 0;
       const root = journey.current,
         stage = viewport.current;
-      if (!root || !stage) return;
+      if (!root || !stage || invitationActive.current) return;
       const bounds = root.getBoundingClientRect();
       const position =
         -bounds.top / scrollUnit(bounds.height, stage.clientHeight);
@@ -214,37 +218,65 @@ export default function App() {
       0,
       Math.min(position, chapterStart(5) + 0.55),
     );
-    openedByScroll.current = false;
     setInvited(true);
   }, []);
   function closeCard() {
-    const target = returnPoint.current;
+    pendingReturn.current = returnPoint.current;
     setInvited(false);
-    setPose(journeyAt(target));
-    goTo(target, false);
+    setPose(journeyAt(returnPoint.current));
   }
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!invited) return;
-    const escape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !document.querySelector("dialog[open]"))
-        closeCard();
+    const body = document.body,
+      html = document.documentElement;
+    const savedBody = body.getAttribute("style"),
+      savedHtml = html.getAttribute("style");
+    const top = window.scrollY,
+      left = window.scrollX;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    body.style.position = "fixed";
+    body.style.top = `-${top}px`;
+    body.style.left = `-${left}px`;
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+    return () => {
+      if (savedBody === null) body.removeAttribute("style");
+      else body.setAttribute("style", savedBody);
+      if (savedHtml === null) html.removeAttribute("style");
+      else html.setAttribute("style", savedHtml);
+      window.scrollTo({ top, left, behavior: "instant" });
+      previousFocus?.focus({ preventScroll: true });
     };
-    window.addEventListener("keydown", escape);
-    return () => window.removeEventListener("keydown", escape);
   }, [invited]);
-  useEffect(() => {
-    document.body.style.removeProperty("overflow");
-  }, []);
-  useEffect(() => {
-    if (
-      invited &&
-      openedByScroll.current &&
-      (!envelope || pose.progress < 0.8)
-    ) {
-      setInvited(false);
-      openedByScroll.current = false;
+  useLayoutEffect(() => {
+    if (!invited && pendingReturn.current !== null) {
+      goTo(pendingReturn.current, false);
+      pendingReturn.current = null;
     }
-  }, [invited, envelope, pose.progress]);
+  }, [invited]);
+  function trapCardFocus(e: KeyboardEvent<HTMLDivElement>) {
+    if (!invited || e.key !== "Tab" || document.querySelector("dialog[open]"))
+      return;
+    const controls = Array.from(
+      cardDialog.current?.querySelectorAll<HTMLElement>(
+        'button, a[href], input, [tabindex="0"]',
+      ) ?? [],
+    ).filter((element) => !element.closest("dialog:not([open])"));
+    const first = controls[0],
+      last = controls[controls.length - 1];
+    if (
+      e.shiftKey &&
+      (document.activeElement === first ||
+        !controls.includes(document.activeElement as HTMLElement))
+    ) {
+      e.preventDefault();
+      last?.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first?.focus();
+    }
+  }
   function nextBeat() {
     if (intro) {
       start();
@@ -287,7 +319,6 @@ export default function App() {
   useEffect(() => {
     if (envelope && pose.progress >= 0.94 && !invited) {
       returnPoint.current = chapterStart(5) + 0.55;
-      openedByScroll.current = true;
       setInvited(true);
     }
   }, [envelope, pose.progress, invited]);
@@ -313,6 +344,7 @@ export default function App() {
   return (
     <>
       <a
+        inert={invited}
         className="skip-link"
         href="#invitation"
         onClick={(e) => {
@@ -323,6 +355,7 @@ export default function App() {
         Read the invitation directly
       </a>
       <header
+        inert={invited}
         className={`journey-header ${invited && pose.phase === "envelope" && pose.progress > 0.99 ? "on-paper" : ""}`}
       >
         <a
@@ -368,6 +401,7 @@ export default function App() {
             <div
               className="immersive-world"
               aria-hidden="true"
+              inert={invited}
               style={{ opacity: 1 - cardReveal * 0.7 }}
             >
               {failed || !visible || !onStage ? (
@@ -540,54 +574,40 @@ export default function App() {
                 }}
               />
             </div>
-            {invited && (
-              <button
-                className="invitation-close"
-                aria-label="Close invitation"
-                aria-controls="invitation"
-                title="Close invitation"
-                onClick={closeCard}
-              >
-                <X size={21} />
-              </button>
-            )}
             {(invited || cardReveal > 0) && (
               <div
-                className={`invitation-overlay ${invited ? "fully-open" : ""}`}
-                onWheel={(e) => {
-                  if (e.deltaY < 0 && e.currentTarget.scrollTop <= 1)
-                    closeCard();
-                }}
-                onTouchStart={(e) => {
-                  cardTouch.current = e.touches[0]?.clientY ?? 0;
-                }}
-                onTouchMove={(e) => {
-                  if (
-                    e.currentTarget.scrollTop <= 1 &&
-                    (e.touches[0]?.clientY ?? 0) - cardTouch.current > 16
-                  )
-                    closeCard();
-                }}
-                style={{
-                  opacity: cardReveal,
-                  transform: reduced
-                    ? "none"
-                    : `translateY(${(1 - cardReveal) * 150}px) scale(${0.42 + 0.58 * cardReveal})`,
-                  pointerEvents: cardReveal > 0.98 ? "auto" : "none",
-                }}
-                aria-hidden={cardReveal < 0.98}
+                ref={cardDialog}
+                className="invitation-dialog"
+                role={invited ? "dialog" : undefined}
+                aria-modal={invited || undefined}
+                aria-label={invited ? "Engagement invitation" : undefined}
+                onKeyDown={trapCardFocus}
               >
-                <Invitation
-                  embedded
-                  active={cardReveal > 0.98}
-                  onReplay={replay}
-                />
-                <button
-                  className="invitation-back text-link"
-                  onClick={closeCard}
+                {invited && (
+                  <button
+                    className="invitation-close"
+                    aria-label="Close invitation"
+                    aria-controls="invitation"
+                    title="Close invitation"
+                    onClick={closeCard}
+                  >
+                    <X size={21} />
+                  </button>
+                )}
+                <div
+                  className={`invitation-overlay ${invited ? "fully-open" : ""}`}
+                  style={{
+                    opacity: cardReveal,
+                    transform: reduced
+                      ? "none"
+                      : `translateY(${(1 - cardReveal) * 150}px) scale(${0.42 + 0.58 * cardReveal})`,
+                    pointerEvents: invited ? "auto" : "none",
+                  }}
+                  aria-hidden={!invited}
+                  inert={!invited}
                 >
-                  Back to the story
-                </button>
+                  <Invitation embedded active={invited} onReplay={replay} />
+                </div>
               </div>
             )}
             {audioError && (
@@ -614,7 +634,10 @@ export default function App() {
           </div>
         </section>
 
-        <footer className={`site-footer ${invited ? "" : "before-invitation"}`}>
+        <footer
+          inert={invited}
+          className={`site-footer ${invited ? "" : "before-invitation"}`}
+        >
           <span>WITH LOVE, AHMED & RAWAN</span>
           <span>
             THE FIRST PAGE OF OUR FOREVER <Heart size={11} />

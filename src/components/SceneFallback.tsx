@@ -64,7 +64,7 @@ export default function SceneFallback({
               alt=""
             />
           )}
-          {cast.map((kind, i) => (
+          {cast.map((kind) => (
             <div
               className={`fallback-actor ${dialogue?.character === kind ? "speaking" : ""}`}
               key={kind}
@@ -73,20 +73,25 @@ export default function SceneFallback({
                 className="fallback-character"
                 style={{ backgroundPosition: positions[kind] }}
               />
-              {dialogue &&
-                (dialogue.character === kind ||
-                  (scene === 1 &&
-                    dialogue.character === "rawan" &&
-                    kind === "ahmed")) && (
-                  <SpeechBubble
-                    name={dialogue.speaker}
-                    text={dialogue.text}
-                    phone={scene === 1 && dialogue.character === "rawan"}
-                    side={i === 0 ? "left" : "right"}
-                  />
-                )}
             </div>
           ))}
+          {dialogue && (
+            <div
+              className={`fallback-dialogue speaker-${dialogue.character === "other" || dialogue.character === "rawan" || (scene === 1 && dialogue.character === "ahmed") ? "right" : "left"}`}
+            >
+              <SpeechBubble
+                name={dialogue.speaker}
+                text={dialogue.text}
+                phone={scene === 1 && dialogue.character === "rawan"}
+                side={
+                  dialogue.character === "other" ||
+                  dialogue.character === "rawan"
+                    ? "right"
+                    : "left"
+                }
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

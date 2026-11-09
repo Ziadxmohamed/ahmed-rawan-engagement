@@ -47,7 +47,7 @@ The invitation can also be saved as a separate 1440 × 1920 PNG through the down
 
 The visual style combines original generated film-style artwork with articulated 2.5D character puppets in Three.js, actual 3D rings, particles, camera movement and a hinged 3D envelope. Character legs, knees, arms and body motion are driven by scroll; these are not fully modelled film-quality 3D characters or facially rigged talking actors. Dialogue is silent and appears in named speech bubbles attached to the speaker. Rawan’s message appears in a phone UI. The finale shows the couple holding hands.
 
-The controls are in the footer; the film header is intentionally clear. The card has a persistent close button and Escape support that restore the previous story position and page scrolling.
+The controls are in the footer; the film header is intentionally clear. The card locks the page behind it and scrolls internally. Only its persistent × close button returns to the previous story position and restores page scrolling. Wheel gestures, touch pull-down and Escape do not dismiss it.
 
 The designs are fictional and do not claim to depict the real couple. Approved likenesses can replace the artwork later. See `artwork/PROMPTS.md` for the art sources and generation briefs.
 

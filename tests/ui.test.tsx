@@ -175,7 +175,7 @@ describe("the complete invitation flow", () => {
     fireEvent.click(
       screen.getByRole("link", { name: "Read the invitation directly" }),
     );
-    expect(document.body.style.overflow).not.toBe("hidden");
+    expect(document.body.style.overflow).toBe("hidden");
     fireEvent.click(
       await screen.findByRole("button", { name: "Close invitation" }),
     );
@@ -184,17 +184,95 @@ describe("the complete invitation flow", () => {
     ).toBeNull();
     expect(document.body.style.overflow).not.toBe("hidden");
   });
-  it("lets guests scroll back out of the card without a refresh", async () => {
+  it("keeps the card open through wheel, touch and Escape until X is pressed", async () => {
     render(<App />);
     fireEvent.click(
       screen.getByRole("link", { name: "Read the invitation directly" }),
     );
     const card = document.querySelector(".invitation-overlay")!;
-    fireEvent.wheel(card, { deltaY: -90 });
     expect(
-      screen.queryByRole("button", { name: "Close invitation" }),
+      screen.getByRole("dialog", { name: "Engagement invitation" }),
+    ).toBeTruthy();
+    expect(document.body.style.position).toBe("fixed");
+    fireEvent.wheel(card, { deltaY: -90 });
+    fireEvent.touchStart(card, { touches: [{ clientY: 200 }] });
+    fireEvent.touchMove(card, { touches: [{ clientY: 270 }] });
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(
+      screen.getByRole("button", { name: "Close invitation" }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Back to the story" }),
     ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /Explore our story again/ }),
+    ).toBeNull();
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.click(screen.getByRole("button", { name: "Close invitation" }));
+    expect(document.body.style.position).not.toBe("fixed");
     expect(document.body.style.overflow).not.toBe("hidden");
+    expect(
+      screen.queryByRole("dialog", { name: "Engagement invitation" }),
+    ).toBeNull();
+  });
+  it("holds an automatically opened card even if the page receives a scroll event", async () => {
+    render(<App />);
+    const root = document.querySelector(".story-journey")!;
+    const geometry = vi.spyOn(root, "getBoundingClientRect");
+    geometry.mockReturnValue({
+      top: -(chapterStart(5) + segmentLengths[6] * 0.96) * 800,
+    } as DOMRect);
+    fireEvent.scroll(window);
+    await screen.findByRole("button", { name: "Close invitation" });
+    geometry.mockReturnValue({ top: -chapterStart(2) * 800 } as DOMRect);
+    fireEvent.scroll(window);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(
+      screen.getByRole("button", { name: "Close invitation" }),
+    ).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.click(screen.getByRole("button", { name: "Close invitation" }));
+    expect(document.body.style.overflow).not.toBe("hidden");
+  });
+  it("restores the original page styles after closing and can open again", () => {
+    document.body.style.margin = "3px";
+    document.documentElement.style.scrollPaddingTop = "9px";
+    render(<App />);
+    const open = () =>
+      fireEvent.click(
+        screen.getByRole("link", { name: "Read the invitation directly" }),
+      );
+    open();
+    expect(document.documentElement.style.overflow).toBe("hidden");
+    fireEvent.click(screen.getByRole("button", { name: "Close invitation" }));
+    expect(document.body.style.margin).toBe("3px");
+    expect(document.documentElement.style.scrollPaddingTop).toBe("9px");
+    expect(document.documentElement.style.overflow).toBe("");
+    open();
+    expect(document.body.style.position).toBe("fixed");
+    fireEvent.click(screen.getByRole("button", { name: "Close invitation" }));
+    expect(document.body.style.position).toBe("");
+    document.body.style.removeProperty("margin");
+    document.documentElement.style.removeProperty("scroll-padding-top");
+  });
+  it("keeps keyboard focus within the card while the background is locked", () => {
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("link", { name: "Read the invitation directly" }),
+    );
+    const close = screen.getByRole("button", { name: "Close invitation" });
+    const share = screen.getByRole("button", { name: "Share Invitation" });
+    close.focus();
+    fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(share);
+    fireEvent.keyDown(share, { key: "Tab" });
+    expect(document.activeElement).toBe(close);
+    expect(
+      document.querySelector(".journey-header")?.hasAttribute("inert"),
+    ).toBe(true);
+    expect(document.querySelector(".site-footer")?.hasAttribute("inert")).toBe(
+      true,
+    );
   });
   it("has no structural accessibility violations in the readable invitation", async () => {
     const { container } = render(

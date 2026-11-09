@@ -3,7 +3,6 @@ import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
 import {
   Billboard,
   Environment,
-  Html,
   Lightformer,
   Sparkles,
 } from "@react-three/drei";
@@ -11,7 +10,7 @@ import * as THREE from "three";
 import gsap from "gsap";
 import type { Mode } from "../lib/core";
 import type { Dialogue } from "../story";
-import SpeechBubble from "../components/SpeechBubble";
+import ScreenSpeech from "./ScreenSpeech";
 import SpriteRig from "./SpriteRig";
 
 const gold = "#cfad73",
@@ -275,26 +274,11 @@ export function Character({
         />
       </Billboard>
       {talking && dialogue && (
-        <Html
-          center
-          position={[
-            x < -1 ? 0.35 : x < 0 ? 0.15 : -0.15,
-            size.width < 600 ? 3.25 : 3.05,
-            0.15,
-          ]}
-          zIndexRange={[8, 1]}
-          style={{ pointerEvents: "none" }}
-        >
-          <div
-            className={`anchored-bubble ${x < 0 ? "from-left" : "from-right"}`}
-          >
-            <SpeechBubble
-              name={dialogue.speaker}
-              text={dialogue.text}
-              side={x < 0 ? "left" : "right"}
-            />
-          </div>
-        </Html>
+        <ScreenSpeech
+          position={[0, size.width < 600 ? 3.25 : 3.05, 0.15]}
+          name={dialogue.speaker}
+          text={dialogue.text}
+        />
       )}
     </group>
   );
@@ -939,17 +923,12 @@ function Set({
         />
       )}
       {story && scene === 1 && talking === "rawan" && dialogue && (
-        <Html
-          center
+        <ScreenSpeech
           position={[0.35, 3.05, 0.5]}
-          zIndexRange={[8, 1]}
-          style={{ pointerEvents: "none" }}
-        >
-          <div className="message-phone">
-            <span className="phone-notch" />
-            <SpeechBubble name="روان" text={dialogue.text} phone side="right" />
-          </div>
-        </Html>
+          name="روان"
+          text={dialogue.text}
+          phone
+        />
       )}
       {(intro || !story || (scene === 2 && progress > 0.84)) && (
         <WeddingRings progress={progress} reduced={reduced} intro={intro} />

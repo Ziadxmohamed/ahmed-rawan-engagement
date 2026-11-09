@@ -162,9 +162,11 @@ export default function Invitation({
         <Countdown />
         <p>Good company. Full hearts. A night to remember.</p>
       </div>
-      <button className="text-link replay-bottom" onClick={onReplay}>
-        Explore our story again <ArrowUpRight size={15} />
-      </button>
+      {!embedded && (
+        <button className="text-link replay-bottom" onClick={onReplay}>
+          Explore our story again <ArrowUpRight size={15} />
+        </button>
+      )}
       <dialog
         ref={calDialog}
         className="modal calendar-modal"
