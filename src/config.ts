@@ -10,8 +10,8 @@ export const event = {
   calendarDurationMinutes: 120,
   tagline: "Every Beautiful Forever Has a Beginning.",
   arabic: "بكل الحب والفرحة، مستنيينكم تشاركونا بداية حكايتنا.",
-  siteUrl: import.meta.env?.VITE_SITE_URL || "https://ahmed-rawan.pages.dev",
-  rsvpStorageKey: "ahmed-rawan-rsvp-v1",
+  siteUrl:
+    import.meta.env?.VITE_SITE_URL || "https://our-next-chapter-ar.pages.dev",
   get title(): string {
     return `${this.groom} & ${this.bride} — Our Next Chapter`;
   },

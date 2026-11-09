@@ -2232,3 +2232,81 @@ select:focus-visible {
     padding: 16px 5px 19px;
   }
 }
+.invitation-close {
+  position: absolute;
+  z-index: 19;
+  top: 105px;
+  right: max(31px, calc((100% - 700px) / 2 + 12px));
+  width: 40px;
+  height: 40px;
+  border: 1px solid #b99b6b;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff8ed;
+  color: #4a1828;
+  box-shadow: 0 3px 15px #1d102822;
+  cursor: pointer;
+}
+.invitation-close:hover {
+  background: #ecdbc3;
+}
+.invitation-close:focus-visible {
+  outline-color: #4a1828;
+}
+.embedded-invitation .paper-ornament {
+  padding-top: 5px;
+}
+.embedded-invitation .awaiting {
+  padding-bottom: 20px;
+}
+@media (max-width: 600px) {
+  .invitation-close {
+    top: 88px;
+    right: 23px;
+    width: 37px;
+    height: 37px;
+  }
+}
+.footer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+.footer-controls .header-invitation {
+  font-size: 10px;
+}
+.footer-controls .music-toggle {
+  font-size: 10px;
+}
+.footer-controls .motion-toggle {
+  width: 30px;
+}
+.fallback-cast {
+  width: min(900px, 84vw);
+}
+@media (max-width: 600px) {
+  .fallback-cast {
+    width: 100vw;
+  }
+  .footer-controls {
+    gap: 20px;
+  }
+  .footer-controls .music-toggle span {
+    display: inline;
+  }
+}
+/* Keep the native page scroll alive through both directions of the story. */
+.journey-viewport.invitation-open {
+  position: sticky;
+  inset: auto;
+  top: 0;
+  z-index: 12;
+}
+.invitation-overlay {
+  overscroll-behavior: auto;
+}
+.invitation-overlay.fully-open {
+  touch-action: pan-y;
+}

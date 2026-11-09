@@ -138,14 +138,14 @@ export default function SpriteRig({
     const stride = walking && !reduced ? Math.sin(p) : 0;
     const damp = (current: number, target: number) =>
       reduced ? target : THREE.MathUtils.damp(current, target, 10, delta);
-    l.rotation.x = damp(l.rotation.x, stride * 0.48);
-    r.rotation.x = damp(r.rotation.x, -stride * 0.48);
-    kneeL.rotation.x = damp(kneeL.rotation.x, Math.max(0, -stride) * 0.65);
-    kneeR.rotation.x = damp(kneeR.rotation.x, Math.max(0, stride) * 0.65);
+    l.rotation.x = damp(l.rotation.x, stride * 0.12);
+    r.rotation.x = damp(r.rotation.x, -stride * 0.12);
+    kneeL.rotation.x = damp(kneeL.rotation.x, Math.max(0, -stride) * 0.3);
+    kneeR.rotation.x = damp(kneeR.rotation.x, Math.max(0, stride) * 0.3);
     l.rotation.z = damp(l.rotation.z, stride * 0.035);
     r.rotation.z = damp(r.rotation.z, stride * 0.035);
-    armL.rotation.x = damp(armL.rotation.x, -stride * 0.25);
-    armR.rotation.x = damp(armR.rotation.x, stride * 0.25);
+    armL.rotation.x = damp(armL.rotation.x, -stride * 0.12);
+    armR.rotation.x = damp(armR.rotation.x, stride * 0.12);
     armL.rotation.z = damp(
       armL.rotation.z,
       -stride * 0.025 + Math.sin(t * 1.3) * 0.008,

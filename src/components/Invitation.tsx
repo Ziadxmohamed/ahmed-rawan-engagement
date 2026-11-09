@@ -5,7 +5,6 @@ import {
   Check,
   Copy,
   Download,
-  Heart,
   MapPin,
   Share2,
   X,
@@ -32,35 +31,10 @@ export default function Invitation({
 }) {
   const [share, setShare] = useState(false),
     [copied, setCopied] = useState(false),
-    [rsvp, setRsvp] = useState(false),
     [cal, setCal] = useState(false),
-    [shareStatus, setShareStatus] = useState(""),
-    [rsvpStatus, setRsvpStatus] = useState("");
-  const [draft] = useState(() => {
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem(event.rsvpStorageKey) || "null",
-      );
-      return saved &&
-        typeof saved.name === "string" &&
-        [
-          "Joyfully attending",
-          "Still making plans",
-          "Celebrating from afar",
-        ].includes(saved.attendance)
-        ? saved
-        : null;
-    } catch {
-      return null;
-    }
-  });
-  const [name, setName] = useState(draft?.name?.slice(0, 60) || ""),
-    [attendance, setAttendance] = useState(
-      draft?.attendance || "Joyfully attending",
-    );
+    [shareStatus, setShareStatus] = useState("");
   const calDialog = useRef<HTMLDialogElement>(null),
     dialog = useRef<HTMLDialogElement>(null),
-    rsvpDialog = useRef<HTMLDialogElement>(null),
     heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (active) heading.current?.focus({ preventScroll: true });
@@ -73,10 +47,6 @@ export default function Invitation({
     if (share) dialog.current?.showModal();
     else dialog.current?.close();
   }, [share]);
-  useEffect(() => {
-    if (rsvp) rsvpDialog.current?.showModal();
-    else rsvpDialog.current?.close();
-  }, [rsvp]);
   const url = window.location.origin + window.location.pathname;
   async function copy() {
     try {
@@ -97,19 +67,6 @@ export default function Invitation({
       else setShare(true);
     } catch (e) {
       if ((e as Error).name !== "AbortError") setShare(true);
-    }
-  }
-  function saveDraft() {
-    const draft = { name: name.trim(), attendance };
-    try {
-      localStorage.setItem(event.rsvpStorageKey, JSON.stringify(draft));
-      setRsvpStatus(
-        "Your plan is saved on this device only. It has not been sent to Ahmed & Rawan.",
-      );
-    } catch {
-      setRsvpStatus(
-        "Storage is unavailable. You can still download your plan.",
-      );
     }
   }
   return (
@@ -179,22 +136,6 @@ export default function Invitation({
         <p className="eyebrow">COUNTING THE MOMENTS UNTIL FOREVER</p>
         <Countdown />
         <p>Good company. Full hearts. A night to remember.</p>
-      </div>
-      <div className="rsvp-row">
-        <Heart size={22} strokeWidth={1} />
-        <div>
-          <h3>Will you be part of our next chapter?</h3>
-          <p>Make a little plan for the celebration.</p>
-        </div>
-        <button
-          className="button outline"
-          onClick={() => {
-            setRsvpStatus("");
-            setRsvp(true);
-          }}
-        >
-          My RSVP plan <ArrowUpRight size={16} />
-        </button>
       </div>
       <button className="text-link replay-bottom" onClick={onReplay}>
         Explore our story again <ArrowUpRight size={15} />
@@ -293,74 +234,6 @@ export default function Invitation({
           {copied ? "Link copied" : "Copy invitation link"}
         </button>
         <p role="status">{shareStatus}</p>
-      </dialog>
-      <dialog
-        ref={rsvpDialog}
-        className="modal"
-        onCancel={() => setRsvp(false)}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) setRsvp(false);
-        }}
-      >
-        <button
-          className="icon-button modal-close"
-          aria-label="Close RSVP"
-          onClick={() => setRsvp(false)}
-        >
-          <X size={20} />
-        </button>
-        <span className="eyebrow">A LITTLE NOTE TO YOURSELF</span>
-        <h2>Your celebration plan.</h2>
-        <p>
-          This is a personal draft. It stays on this device and is not sent to
-          the couple. Please confirm with Ahmed or Rawan directly.
-        </p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            saveDraft();
-          }}
-        >
-          <label>
-            Your name
-            <input
-              dir="auto"
-              maxLength={60}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoComplete="name"
-            />
-          </label>
-          <label>
-            Your plan
-            <select
-              value={attendance}
-              onChange={(e) => setAttendance(e.target.value)}
-            >
-              <option>Joyfully attending</option>
-              <option>Still making plans</option>
-              <option>Celebrating from afar</option>
-            </select>
-          </label>
-          <button className="button primary" type="submit">
-            Save on this device <Check size={16} />
-          </button>
-          <button
-            className="text-link"
-            type="button"
-            onClick={() =>
-              download(
-                `${name.trim() || "Guest"}\n${attendance}\n${event.title}\n${event.dateLabel}, ${event.timeLabel} Africa/Cairo\n${event.mapsUrl}\n\nPersonal draft only; not sent to the couple.`,
-                "my-celebration-plan.txt",
-                "text/plain;charset=utf-8",
-              )
-            }
-          >
-            <Download size={15} /> Download my plan
-          </button>
-        </form>
-        <p role="status">{rsvpStatus}</p>
       </dialog>
     </section>
   );

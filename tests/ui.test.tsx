@@ -94,22 +94,38 @@ describe("the complete invitation flow", () => {
     expect(decodeURIComponent(href)).toContain("8:00 PM (Cairo time)");
     expect(screen.getByRole("dialog").hasAttribute("open")).toBe(true);
   });
-  it("saves only a local RSVP draft with explicit delivery status", () => {
-    localStorage.clear();
+  it("omits the RSVP section from the invitation", () => {
     render(<Invitation onReplay={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /My RSVP plan/ }));
-    fireEvent.change(screen.getByLabelText("Your name"), {
-      target: { value: "محمد" },
-    });
-    fireEvent.click(
-      screen.getByRole("button", { name: /Save on this device/ }),
-    );
-    expect(localStorage.getItem("ahmed-rawan-rsvp-v1")).toContain("محمد");
+    expect(screen.queryByRole("button", { name: /My RSVP/ })).toBeNull();
     expect(
-      screen.getByText(
-        "Your plan is saved on this device only. It has not been sent to Ahmed & Rawan.",
-      ),
-    ).toBeTruthy();
+      screen.queryByText("Will you be part of our next chapter?"),
+    ).toBeNull();
+  });
+  it("closes the invitation with a visible control and restores page scrolling", async () => {
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("link", { name: "Read the invitation directly" }),
+    );
+    expect(document.body.style.overflow).not.toBe("hidden");
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Close invitation" }),
+    );
+    expect(
+      screen.queryByRole("heading", { name: "Ahmed & Rawan", level: 2 }),
+    ).toBeNull();
+    expect(document.body.style.overflow).not.toBe("hidden");
+  });
+  it("lets guests scroll back out of the card without a refresh", async () => {
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("link", { name: "Read the invitation directly" }),
+    );
+    const card = document.querySelector(".invitation-overlay")!;
+    fireEvent.wheel(card, { deltaY: -90 });
+    expect(
+      screen.queryByRole("button", { name: "Close invitation" }),
+    ).toBeNull();
+    expect(document.body.style.overflow).not.toBe("hidden");
   });
   it("has no structural accessibility violations in the readable invitation", async () => {
     const { container } = render(

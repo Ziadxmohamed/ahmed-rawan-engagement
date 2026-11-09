@@ -694,7 +694,7 @@ function CameraRig({
             ? 10.2
             : scene === 1
               ? 9.3
-              : 8.8
+              : 9.5
           : 7.4
         : mobile
           ? 9.6
@@ -848,7 +848,7 @@ function Set({
                 <Character
                   anchorX={introAnchors.ahmed}
                   kind="ahmed"
-                  x={scene === 1 ? 0.45 : -0.48}
+                  x={scene === 1 ? 0.55 : -0.85}
                   z={scene === 3 ? 0.8 : 0.2}
                   talking={talking === "ahmed"}
                   scene={scene}
@@ -872,7 +872,7 @@ function Set({
                   <Character
                     anchorX={introAnchors.rawan}
                     kind="rawan"
-                    x={0.5}
+                    x={0.9}
                     z={scene === 3 ? 0.8 : 0.2}
                     talking={talking === "rawan"}
                     scene={scene}

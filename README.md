@@ -31,7 +31,7 @@ The build creates `public/engagement.ics`, then type-checks and builds Vite into
 
 The invitation is general. A `guest` query parameter does **not** personalize it, following the final design request. `?lite=1` selects the illustrated fallback without loading WebGL.
 
-## Calendar, sharing and RSVP
+## Calendar and sharing
 
 Add to Calendar offers a prefilled Google Calendar event, an inline `.ics` link for Apple Calendar, and a file download for other calendars. Guests review and confirm the event in their own app. Whether a mobile browser opens the installed app or its web view depends on the device, browser and installed applications. On iPhone, Safari is the best entry point for the calendar preview.
 
@@ -39,23 +39,25 @@ The calendar end time uses a configurable **120-minute default**, explicitly des
 
 Sharing offers WhatsApp, the operating system’s share sheet where supported, and copying the actual invitation URL. No messages are sent automatically.
 
-RSVP is a personal plan saved only in the guest’s browser, with a text export. It is **not delivered to the couple**. There is no backend or saved-response dashboard.
+RSVP has been removed from the final design. No guest responses are collected or stored.
 
 ## Animation and accessibility
 
 The visual style combines original generated film-style artwork with articulated 2.5D character puppets in Three.js, actual 3D rings, particles, camera movement and a hinged 3D envelope. Character legs, knees, arms and body motion are driven by scroll; these are not fully modelled film-quality 3D characters or facially rigged talking actors. Dialogue is silent and appears in named speech bubbles attached to the speaker. Rawan’s message appears in a phone UI. The finale shows the couple holding hands.
 
+The controls are in the footer; the film header is intentionally clear. The card has a persistent close button and Escape support that restore the previous story position and page scrolling.
+
 The designs are fictional and do not claim to depict the real couple. Approved likenesses can replace the artwork later. See `artwork/PROMPTS.md` for the art sources and generation briefs.
 
 The experience respects system reduced motion and has a manual motion toggle. Reduced motion keeps scroll-based chapter changes while removing camera drift, gait and entrance effects. WebGL is lazy-loaded, pixel density and particle count adapt to small screens, and rendering pauses in hidden tabs and after reaching the invitation. The invitation, full story transcript, sharing and calendar controls remain usable without WebGL; there is also a JavaScript-free invitation in the HTML.
 
-Fonts are self-hosted Tajawal and Cormorant Garamond under the SIL Open Font License; notices are in `licenses/`. The instrumental is an original, locally synthesized Web Audio arpeggio. It starts only through the sound control, with no recordings or commercial music.
+Fonts are self-hosted Tajawal and Cormorant Garamond under the SIL Open Font License; notices are in `licenses/`. The instrumental is an original 54-second piano-and-strings miniature, rendered from the score in `scripts/compose_music.py` and delivered as a 624 KB AAC file. It starts only after an explicit start or sound interaction, with no recordings or commercial music.
 
 ## Publish
 
 Repository: https://github.com/Ziadxmohamed/ahmed-rawan-engagement
 
-Target Pages project: `ahmed-rawan`. Vite build command: `npm run build`. Output: `dist`. Set `NODE_VERSION=24` for hosted builds. Deployment integration status is recorded in `docs/DEPLOYMENT.md` after verification.
+Target Pages project: `our-next-chapter-ar`. Vite build command: `npm run build`. Output: `dist`. Set `NODE_VERSION=24` for hosted builds. Deployment integration status is recorded in `docs/DEPLOYMENT.md` after verification.
 
 For a direct upload:
 
@@ -63,11 +65,11 @@ For a direct upload:
 npm ci
 npm test
 npm run build
-npx wrangler pages deploy dist --project-name ahmed-rawan --branch main
+npx wrangler pages deploy dist --project-name our-next-chapter-ar --branch main
 ```
 
 Only deploy to this project. Do not overwrite another Pages project, add a domain or alter DNS.
 
 ## Verification
 
-`npm test` covers time conversion, countdown rollover, calendar serialization, sharing URLs, forward/reverse scroll mapping, automatic invitation opening, general guest addressing, named speech bubbles, local RSVP drafts and structural accessibility with axe. TypeScript and the production build are required checks. Actual device behavior and browser-specific app handoff must be checked on target devices; automated DOM tests do not certify those behaviors.
+`npm test` covers time conversion, countdown rollover, calendar serialization, sharing URLs, forward/reverse scroll mapping, automatic invitation opening, general guest addressing, named speech bubbles, RSVP removal and invitation closing and structural accessibility with axe. TypeScript and the production build are required checks. Actual device behavior and browser-specific app handoff must be checked on target devices; automated DOM tests do not certify those behaviors.

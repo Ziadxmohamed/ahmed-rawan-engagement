@@ -16,6 +16,7 @@ import {
   Volume2,
   VolumeX,
   Wind,
+  X,
 } from "lucide-react";
 import gsap from "gsap";
 import { event } from "./config";
@@ -31,12 +32,22 @@ import Invitation from "./components/Invitation";
 import SceneFallback from "./components/SceneFallback";
 const World = lazy(() => import("./three/World"));
 class WorldBoundary extends Component<
-  { children: ReactNode; fallback: ReactNode },
+  { children: ReactNode; fallback: ReactNode; resetKey: string },
   { failed: boolean }
 > {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
+  }
+  componentDidUpdate(
+    previous: Readonly<{
+      children: ReactNode;
+      fallback: ReactNode;
+      resetKey: string;
+    }>,
+  ) {
+    if (this.state.failed && previous.resetKey !== this.props.resetKey)
+      this.setState({ failed: false });
   }
   render() {
     return this.state.failed ? this.props.fallback : this.props.children;
@@ -55,6 +66,9 @@ export default function App() {
     ),
     [visible, setVisible] = useState(!document.hidden),
     [onStage, setOnStage] = useState(true);
+  const returnPoint = useRef(0),
+    openedByScroll = useRef(false),
+    cardTouch = useRef(0);
   const audio = useRef<InvitationAudio | null>(null),
     journey = useRef<HTMLElement>(null),
     viewport = useRef<HTMLDivElement>(null),
@@ -173,6 +187,7 @@ export default function App() {
     });
   }
   function start() {
+    if (!music) void toggleMusic();
     goTo(chapterStart(0), false);
   }
   function replay() {
@@ -184,16 +199,47 @@ export default function App() {
     goTo(chapterStart(5) + 0.04, false);
   }
   const read = useCallback(() => {
+    const root = journey.current,
+      stage = viewport.current;
+    const position =
+      root && stage
+        ? -root.getBoundingClientRect().top / stage.clientHeight
+        : 0;
+    returnPoint.current = Math.max(
+      0,
+      Math.min(position, chapterStart(5) + 0.55),
+    );
+    openedByScroll.current = false;
     setInvited(true);
   }, []);
+  function closeCard() {
+    const target = returnPoint.current;
+    setInvited(false);
+    setPose(journeyAt(target));
+    goTo(target, false);
+  }
   useEffect(() => {
     if (!invited) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !document.querySelector("dialog[open]"))
+        closeCard();
     };
+    window.addEventListener("keydown", escape);
+    return () => window.removeEventListener("keydown", escape);
   }, [invited]);
+  useEffect(() => {
+    document.body.style.removeProperty("overflow");
+  }, []);
+  useEffect(() => {
+    if (
+      invited &&
+      openedByScroll.current &&
+      (!envelope || pose.progress < 0.8)
+    ) {
+      setInvited(false);
+      openedByScroll.current = false;
+    }
+  }, [invited, envelope, pose.progress]);
   function nextBeat() {
     if (intro) {
       start();
@@ -215,12 +261,13 @@ export default function App() {
     );
   }
   async function toggleMusic() {
-    audio.current ??= new InvitationAudio();
     if (music) {
-      audio.current.pause();
+      audio.current?.pause();
       setMusic(false);
     } else {
       try {
+        audio.current?.dispose();
+        audio.current = new InvitationAudio();
         await audio.current.play();
         setMusic(true);
         setAudioError("");
@@ -233,7 +280,11 @@ export default function App() {
     ? Math.max(0, Math.min(1, (pose.progress - 0.1) / 0.75))
     : 0;
   useEffect(() => {
-    if (envelope && pose.progress >= 0.94 && !invited) setInvited(true);
+    if (envelope && pose.progress >= 0.94 && !invited) {
+      returnPoint.current = chapterStart(5) + 0.55;
+      openedByScroll.current = true;
+      setInvited(true);
+    }
   }, [envelope, pose.progress, invited]);
   const cardReveal = invited
     ? 1
@@ -281,30 +332,6 @@ export default function App() {
           A<span>&</span>R
         </a>
         <span className="header-title">OUR NEXT CHAPTER</span>
-        <div className="header-actions">
-          <button
-            className="motion-toggle"
-            onClick={() => setReduced((v) => !v)}
-            aria-label={reduced ? "Enable animation" : "Reduce motion"}
-            aria-pressed={reduced}
-            title={reduced ? "Animation reduced" : "Reduce motion"}
-          >
-            <Wind size={18} />
-          </button>
-          <button
-            className="music-toggle"
-            onClick={toggleMusic}
-            aria-pressed={music}
-            aria-label={`Music ${music ? "on" : "off"}`}
-            title={`Turn music ${music ? "off" : "on"}`}
-          >
-            {music ? <Volume2 size={17} /> : <VolumeX size={17} />}
-            <span>Sound {music ? "on" : "off"}</span>
-          </button>
-          <button className="header-invitation" onClick={invited ? read : skip}>
-            The invitation <ArrowUpRight size={14} />
-          </button>
-        </div>
       </header>
       <main id="main" className={reduced ? "reduced-motion" : ""}>
         <section
@@ -339,7 +366,10 @@ export default function App() {
               {failed || !visible || !onStage ? (
                 fallback
               ) : (
-                <WorldBoundary fallback={fallback}>
+                <WorldBoundary
+                  fallback={fallback}
+                  resetKey={`${pose.phase}-${pose.scene}`}
+                >
                   <Suspense fallback={fallback}>
                     <World
                       scene={pose.scene}
@@ -503,9 +533,34 @@ export default function App() {
                 }}
               />
             </div>
+            {invited && (
+              <button
+                className="invitation-close"
+                aria-label="Close invitation"
+                aria-controls="invitation"
+                title="Close invitation"
+                onClick={closeCard}
+              >
+                <X size={21} />
+              </button>
+            )}
             {(invited || cardReveal > 0) && (
               <div
                 className={`invitation-overlay ${invited ? "fully-open" : ""}`}
+                onWheel={(e) => {
+                  if (e.deltaY < 0 && e.currentTarget.scrollTop <= 1)
+                    closeCard();
+                }}
+                onTouchStart={(e) => {
+                  cardTouch.current = e.touches[0]?.clientY ?? 0;
+                }}
+                onTouchMove={(e) => {
+                  if (
+                    e.currentTarget.scrollTop <= 1 &&
+                    (e.touches[0]?.clientY ?? 0) - cardTouch.current > 16
+                  )
+                    closeCard();
+                }}
                 style={{
                   opacity: cardReveal,
                   transform: reduced
@@ -522,11 +577,7 @@ export default function App() {
                 />
                 <button
                   className="invitation-back text-link"
-                  onClick={() => {
-                    setInvited(false);
-                    setPose(journeyAt(chapterStart(5) + 0.55));
-                    goTo(chapterStart(5) + 0.55, false);
-                  }}
+                  onClick={closeCard}
                 >
                   Back to the story
                 </button>
@@ -567,11 +618,33 @@ export default function App() {
           <button className="text-link" onClick={replay}>
             <RotateCcw size={12} /> Replay Story
           </button>
-          {!invited && (
-            <button className="text-link" onClick={read}>
-              Read Invitation <ArrowUpRight size={12} />
+          <div className="footer-controls">
+            <button
+              className="motion-toggle"
+              onClick={() => setReduced((v) => !v)}
+              aria-label={reduced ? "Enable animation" : "Reduce motion"}
+              aria-pressed={reduced}
+              title={reduced ? "Animation reduced" : "Reduce motion"}
+            >
+              <Wind size={18} />
             </button>
-          )}
+            <button
+              className="music-toggle"
+              onClick={toggleMusic}
+              aria-pressed={music}
+              aria-label={`Music ${music ? "on" : "off"}`}
+              title={`Turn music ${music ? "off" : "on"}`}
+            >
+              {music ? <Volume2 size={17} /> : <VolumeX size={17} />}
+              <span>Sound {music ? "on" : "off"}</span>
+            </button>
+            <button
+              className="header-invitation"
+              onClick={invited ? read : skip}
+            >
+              The invitation <ArrowUpRight size={14} />
+            </button>
+          </div>
         </footer>
       </main>
     </>
