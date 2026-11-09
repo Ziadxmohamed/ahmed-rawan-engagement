@@ -39,7 +39,9 @@ The calendar end time uses a configurable **120-minute default**, explicitly des
 
 Sharing offers WhatsApp, the operating system’s share sheet where supported, and copying the actual invitation URL. No messages are sent automatically.
 
-RSVP has been removed from the final design. No guest responses are collected or stored.
+The old RSVP form has been removed. A direct attendance-confirmation button opens a fixed Arabic message in WhatsApp for the configured recipient. Guests review and send the message themselves; the site does not store responses or claim a message was sent automatically. Edit `confirmationWhatsApp` and `confirmationMessage` in `src/config.ts` to change the recipient or message.
+
+The invitation can also be saved as a separate 1440 × 1920 PNG through the download button. The portrait artwork is regenerated with the social preview during the build.
 
 ## Animation and accessibility
 

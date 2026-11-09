@@ -89,3 +89,12 @@ export function googleCalendarUrl() {
   });
   return `https://calendar.google.com/calendar/render?${params}`;
 }
+
+export function confirmationUrl() {
+  // Use the direct WhatsApp endpoint to avoid a second redirect rewriting Unicode.
+  const params = new URLSearchParams({
+    phone: event.confirmationWhatsApp,
+    text: event.confirmationMessage,
+  });
+  return `https://api.whatsapp.com/send?${params.toString()}`;
+}

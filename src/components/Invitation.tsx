@@ -6,11 +6,17 @@ import {
   Copy,
   Download,
   MapPin,
+  MessageCircle,
   Share2,
   X,
 } from "lucide-react";
 import { event } from "../config";
-import { calendar, googleCalendarUrl, shareText } from "../lib/core";
+import {
+  calendar,
+  googleCalendarUrl,
+  shareText,
+  confirmationUrl,
+} from "../lib/core";
 import Countdown from "./Countdown";
 function download(content: string, name: string, type: string) {
   const url = URL.createObjectURL(new Blob([content], { type }));
@@ -120,6 +126,25 @@ export default function Invitation({
           <button className="button outline" onClick={() => setCal(true)}>
             <CalendarPlus size={17} /> Add to Calendar
           </button>
+        </div>
+        <div className="attendance-confirmation" lang="ar" dir="rtl">
+          <a
+            className="button primary attendance-confirm"
+            href={confirmationUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle size={18} /> إرسال تأكيد الحضور{" "}
+            <ArrowUpRight size={17} />
+          </a>
+          <p>هتفتح لك رسالة واتساب جاهزة لإرسالها.</p>
+          <a
+            className="button outline download-invitation-card"
+            href="/invitation-card.png"
+            download="ahmed-rawan-invitation.png"
+          >
+            <Download size={18} /> تنزيل كارت الدعوة
+          </a>
         </div>
         <button
           className="text-link paper-share"

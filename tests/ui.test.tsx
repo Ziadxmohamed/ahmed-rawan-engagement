@@ -8,9 +8,14 @@ import {
   waitFor,
 } from "@testing-library/react";
 import App from "../src/App";
+import { event } from "../src/config";
 import Invitation from "../src/components/Invitation";
 import axe from "axe-core";
-import { chapterStart, segmentLengths } from "../src/lib/journey";
+import {
+  chapterStart,
+  segmentLengths,
+  journeyLength,
+} from "../src/lib/journey";
 vi.mock("../src/three/World", () => ({
   default: () => <div data-testid="world" />,
 }));
@@ -58,6 +63,41 @@ describe("the complete invitation flow", () => {
     });
     await screen.findByTestId("world");
   });
+  it("keeps the same chapter when mobile browser chrome expands or collapses", async () => {
+    render(<App />);
+    const root = document.querySelector(".story-journey")!;
+    const stage = document.querySelector(".journey-viewport")!;
+    let screenHeight = 700;
+    const unit = 600,
+      position = (chapterStart(2) + 0.1) * unit;
+    Object.defineProperty(stage, "clientHeight", {
+      get: () => screenHeight,
+      configurable: true,
+    });
+    vi.spyOn(root, "getBoundingClientRect").mockImplementation(
+      () =>
+        ({
+          top: -position,
+          height: journeyLength * unit + screenHeight,
+        }) as DOMRect,
+    );
+    fireEvent.scroll(window);
+    expect(
+      await screen.findByRole("heading", { name: "Right where we belong." }),
+    ).toBeTruthy();
+    screenHeight = 800;
+    fireEvent.resize(window);
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Right where we belong." }),
+      ).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "The invitation" }));
+    expect(window.scrollTo).toHaveBeenLastCalledWith({
+      top: -position + (chapterStart(5) + 0.04) * unit,
+      behavior: "instant",
+    });
+  });
   it("opens a readable invitation directly in lightweight mode", async () => {
     window.history.replaceState({}, "", "/?lite=1&guest=Mohamed");
     render(<App />);
@@ -93,6 +133,35 @@ describe("the complete invitation flow", () => {
     expect(decodeURIComponent(href)).toContain("November 13, 2026");
     expect(decodeURIComponent(href)).toContain("8:00 PM (Cairo time)");
     expect(screen.getByRole("dialog").hasAttribute("open")).toBe(true);
+  });
+  it("opens the fixed attendance confirmation in WhatsApp for the supplied number", () => {
+    render(<Invitation onReplay={() => {}} />);
+    const link = screen.getByRole("link", { name: /إرسال تأكيد الحضور/ });
+    const url = new URL(link.getAttribute("href")!);
+    expect(url.hostname).toBe("api.whatsapp.com");
+    expect(url.searchParams.get("phone")).toBe("201117584007");
+    expect(url.searchParams.get("text")).toBe(event.confirmationMessage);
+    expect(url.searchParams.get("text")).toContain(
+      String.fromCodePoint(0x1f90d),
+    );
+    expect(url.searchParams.get("text")).toContain(
+      String.fromCodePoint(0x1f48d),
+    );
+    expect(url.searchParams.get("text")).toContain(
+      String.fromCodePoint(0x2728),
+    );
+    expect(link.getAttribute("href")).not.toContain("%EF%BF%BD");
+
+    expect(url.searchParams.get("text")).toContain(
+      "بأكّد حضوري لخطوبة أحمد وروان",
+    );
+    expect(link.getAttribute("target")).toBe("_blank");
+  });
+  it("downloads a standalone high-resolution invitation card", () => {
+    render(<Invitation onReplay={() => {}} />);
+    const link = screen.getByRole("link", { name: /تنزيل كارت الدعوة/ });
+    expect(link.getAttribute("href")).toBe("/invitation-card.png");
+    expect(link.getAttribute("download")).toBe("ahmed-rawan-invitation.png");
   });
   it("omits the RSVP section from the invitation", () => {
     render(<Invitation onReplay={() => {}} />);

@@ -47,3 +47,9 @@ export function journeyAt(position: number): JourneyPose {
     announcement: progress >= 0.84,
   };
 }
+
+/** Visible height changes with browser chrome; the narrative scroll step stays stable. */
+export function scrollUnit(trackHeight: number, screenHeight: number) {
+  const unit = (trackHeight - screenHeight) / journeyLength;
+  return Number.isFinite(unit) && unit > 0 ? unit : Math.max(1, screenHeight);
+}

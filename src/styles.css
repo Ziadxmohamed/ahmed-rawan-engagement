@@ -165,7 +165,7 @@ select:focus-visible {
   color: var(--ivory);
 }
 .journey-viewport {
-  height: 100svh;
+  height: var(--story-screen);
   position: sticky;
   top: 0;
   overflow: hidden;
@@ -1982,7 +1982,7 @@ select:focus-visible {
 .journey-viewport.invitation-open {
   position: fixed;
   inset: 0;
-  height: 100svh;
+  height: var(--story-screen);
   z-index: 12;
 }
 .invitation-overlay {
@@ -2309,4 +2309,45 @@ select:focus-visible {
 }
 .invitation-overlay.fully-open {
   touch-action: pan-y;
+}
+
+/* A stable scroll distance and a screen that follows the mobile browser chrome. */
+:root {
+  --story-step: 100vh;
+  --story-screen: 100vh;
+}
+@supports (height: 100svh) {
+  :root {
+    --story-step: 100svh;
+    --story-screen: 100svh;
+  }
+}
+@supports (height: 100dvh) {
+  :root {
+    --story-screen: 100dvh;
+  }
+}
+
+.attendance-confirmation {
+  margin: 16px auto 0;
+  max-width: 420px;
+}
+.attendance-confirm {
+  width: 100%;
+  min-height: 51px;
+  font-size: 16px;
+  gap: 13px;
+}
+.attendance-confirmation > p {
+  font-size: 11px;
+  color: #806348;
+  line-height: 1.7;
+  margin: 8px 0 1px;
+}
+
+.download-invitation-card {
+  width: 100%;
+  margin-top: 13px;
+  font-size: 15px;
+  min-height: 49px;
 }

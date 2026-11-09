@@ -25,6 +25,7 @@ import {
   journeyAt,
   journeyLength,
   segmentLengths,
+  scrollUnit,
 } from "./lib/journey";
 import { InvitationAudio } from "./lib/audio";
 import { scenes } from "./story";
@@ -118,7 +119,9 @@ export default function App() {
       const root = journey.current,
         stage = viewport.current;
       if (!root || !stage) return;
-      const position = -root.getBoundingClientRect().top / stage.clientHeight;
+      const bounds = root.getBoundingClientRect();
+      const position =
+        -bounds.top / scrollUnit(bounds.height, stage.clientHeight);
       setPose(journeyAt(position));
       setOnStage(position <= journeyLength + 0.8);
     };
@@ -177,10 +180,11 @@ export default function App() {
     const root = journey.current,
       stage = viewport.current;
     if (!root || !stage) return;
+    const bounds = root.getBoundingClientRect();
     const top =
       window.scrollY +
-      root.getBoundingClientRect().top +
-      position * stage.clientHeight;
+      bounds.top +
+      position * scrollUnit(bounds.height, stage.clientHeight);
     window.scrollTo({
       top,
       behavior: smooth && !reduced ? "smooth" : "instant",
@@ -201,9 +205,10 @@ export default function App() {
   const read = useCallback(() => {
     const root = journey.current,
       stage = viewport.current;
+    const bounds = root?.getBoundingClientRect();
     const position =
-      root && stage
-        ? -root.getBoundingClientRect().top / stage.clientHeight
+      bounds && stage
+        ? -bounds.top / scrollUnit(bounds.height, stage.clientHeight)
         : 0;
     returnPoint.current = Math.max(
       0,
@@ -337,7 +342,9 @@ export default function App() {
         <section
           ref={journey}
           className={`story-journey ${invited ? "journey-finished" : ""}`}
-          style={{ height: `${(journeyLength + 1) * 100}svh` }}
+          style={{
+            height: `calc(${journeyLength} * var(--story-step) + var(--story-screen))`,
+          }}
           aria-label="A love story you explore by scrolling"
         >
           <div

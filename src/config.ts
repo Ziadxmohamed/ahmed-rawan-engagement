@@ -8,6 +8,10 @@ export const event = {
   longitude: 31.37034,
   // Convenience default only; the couple has not confirmed the end time.
   calendarDurationMinutes: 120,
+  confirmationWhatsApp: "201117584007",
+  confirmationMessage:
+    "بكل الحب والفرحة، بأكّد حضوري لخطوبة أحمد وروان \u{1F90D}\u{1F48D}\nهكون معاكم إن شاء الله يوم الجمعة 13 نوفمبر، الساعة 8 مساءً.\nربنا يتمّم فرحتكم على خير، ويكتب لكم حكاية مليانة حب وسعادة \u2728",
+
   tagline: "Every Beautiful Forever Has a Beginning.",
   arabic: "بكل الحب والفرحة، مستنيينكم تشاركونا بداية حكايتنا.",
   siteUrl:
