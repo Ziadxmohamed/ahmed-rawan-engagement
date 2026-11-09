@@ -277,7 +277,11 @@ export function Character({
       {talking && dialogue && (
         <Html
           center
-          position={[x < -1 ? 0.35 : x < 0 ? 0.15 : -0.15, 3.05, 0.15]}
+          position={[
+            x < -1 ? 0.35 : x < 0 ? 0.15 : -0.15,
+            size.width < 600 ? 3.25 : 3.05,
+            0.15,
+          ]}
           zIndexRange={[8, 1]}
           style={{ pointerEvents: "none" }}
         >
@@ -703,7 +707,23 @@ function CameraRig({
     const orbit = !reduced && story && scene === 2 ? (progress - 0.5) * 1.2 : 0;
     const targetX = orbit + (reduced ? 0 : state.pointer.x * 0.06),
       targetY = intro ? 3.6 : story ? 2.9 : 3.3,
-      targetZ = distance - dolly - openProgress * 1.3;
+      targetZ =
+        Math.max(
+          distance - dolly,
+          mobile && story && !intro
+            ? 3.4 /
+                ((2 *
+                  Math.tan(
+                    THREE.MathUtils.degToRad(
+                      (camera as THREE.PerspectiveCamera).fov / 2,
+                    ),
+                  ) *
+                  size.width) /
+                  size.height) +
+                0.8
+            : 0,
+        ) -
+        openProgress * 1.3;
     if (reduced) camera.position.set(targetX, targetY, targetZ);
     else {
       camera.position.x = THREE.MathUtils.damp(
