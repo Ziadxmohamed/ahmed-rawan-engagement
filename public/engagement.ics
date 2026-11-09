@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Ahmed and Rawan//Our Next Chapter//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ahmed-rawan-engagement-20261113@our-next-chapter
+DTSTAMP:20261109T212447Z
+DTSTART:20261113T180000Z
+DTEND:20261113T200000Z
+SUMMARY:Ahmed & Rawan Engagement
+LOCATION:https://maps.google.com/?q=30.137796\,31.370340
+GEO:30.137796;31.370340
+DESCRIPTION:Join us for Ahmed & Rawan’s engagement. 8:00 PM Africa/Cairo.
+  Calendar end time uses a configurable 120-minute default\; the event end 
+ time is not confirmed.\nhttps://maps.google.com/?q=30.137796\,31.370340
+URL:https://maps.google.com/?q=30.137796,31.370340
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR
