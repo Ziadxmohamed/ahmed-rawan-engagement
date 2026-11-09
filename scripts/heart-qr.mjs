@@ -34,8 +34,8 @@ const finders = [
 const decorative = (col, row) => {
   const x = col - code.col,
     y = row - code.row;
-  if (inBox(x, y, -1, -1, count + 2, count + 2)) return false;
-  if (finders.some(([fx, fy]) => inBox(x, y, fx - 4, fy - 4, 15, 15)))
+  if (inBox(x, y, 0, 0, count, count)) return false;
+  if (finders.some(([fx, fy]) => inBox(x, y, fx - 1, fy - 1, 9, 9)))
     return false;
   // A repeatable texture, with no dependency on external images or services.
   let value = Math.imul(col + 157, 374761393) ^ Math.imul(row + 283, 668265263);
