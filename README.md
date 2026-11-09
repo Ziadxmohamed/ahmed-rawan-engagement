@@ -78,4 +78,4 @@ Only deploy to this project. Do not overwrite another Pages project, add a domai
 
 ## Heart QR image
 
-The shareable heart design is `public/heart-qr.png` (1600 × 1800). Run `npm run qr` to regenerate it, or let the standard build do so. The build decodes the finished image and checks that its content is the configured canonical invitation URL. The full QR and its quiet zone are preserved inside the heart so the decorative shape does not damage scannability.
+The shareable heart design is `public/heart-qr.png` (1600 × 1800). Run `npm run qr` to regenerate it, or let the standard build do so. The build decodes the finished image and checks that its content is the configured canonical invitation URL. Burgundy modules form the heart itself. The complete QR data matrix sits within that pattern, with clearance around the detection markers. The finished image is decoded at widths of 1600, 1000, 700 and 480 pixels and after JPEG compression and slight rotation.

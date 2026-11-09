@@ -29,3 +29,7 @@ The new sharing domain is `ahmed-rawan2026.pages.dev`. The heart QR export is de
 Mobile speech refinement: 3D speech panels are measured with ResizeObserver and clamped inside the canvas with 16px side margins. The tail follows the projected speaker without pushing text outside the screen. The lightweight fallback places bubbles within the complete cast width, rather than centering overflowing bubbles on edge characters. Geometry tests cover 320, 360, 390, 600 and 1440px widths and tall dialogue on a short viewport.
 
 Current browser review: Chrome's mobile emulation opened the invitation automatically. An upward scroll and Escape left it open, and clicking × returned to the envelope. Subsequent visual screenshots were unreliable and native UI controls reported offscreen elements, so a final visual certification of the corrected bubble and physical-device touch scrolling remains unavailable. The automated checks cover these interaction rules and safe bubble geometry.
+
+The heart QR now uses burgundy QR-style modules to form the complete heart silhouette on ivory. Its central data matrix remains intact; surrounding modules are decorative. The finished PNG is decoded at 1600, 1000, 700 and 480px widths, plus a 700px JPEG at quality 75 rotated 7 degrees. Every check must return the canonical invitation URL before the export is written.
+
+Apple Vision independently decoded the final full-size PNG to `https://ahmed-rawan2026.pages.dev/`. This is a local image-decoder check, not a physical phone camera test.
