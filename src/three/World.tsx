@@ -602,10 +602,11 @@ function WeddingRings({
           />
         </mesh>
         <Billboard position={[0, 0, 0.09]}>
-          <mesh>
+          <mesh renderOrder={30}>
             <planeGeometry args={[0.24, 0.24]} />
             <meshBasicMaterial
               ref={ia}
+              depthTest={false}
               map={letters[0]}
               transparent
               opacity={0}
@@ -635,10 +636,11 @@ function WeddingRings({
           />
         </mesh>
         <Billboard position={[0, 0, 0.08]}>
-          <mesh>
+          <mesh renderOrder={31}>
             <planeGeometry args={[0.23, 0.23]} />
             <meshBasicMaterial
               ref={ib}
+              depthTest={false}
               map={letters[1]}
               transparent
               opacity={0}
