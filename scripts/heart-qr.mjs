@@ -63,8 +63,10 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1800" 
 <text x="800" y="175" text-anchor="middle" font-family="Georgia,serif" font-size="94" fill="#4a1828">${escape(event.groom)} &amp; ${escape(event.bride)}</text>
 <text x="800" y="243" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" letter-spacing="7" fill="#8b6b42">OUR NEXT CHAPTER</text>
 <g fill="#4a1828" shape-rendering="crispEdges">${modules}</g>
-<text x="800" y="1653" text-anchor="middle" font-family="Georgia,serif" font-size="33" letter-spacing="4" fill="#4a1828">${event.dateLabel.replace(/^\w+, /, "").toUpperCase()}</text>
-<text x="800" y="1713" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" letter-spacing="2" fill="#8b6b42">${new URL(target).hostname}</text>
+<path d="M590 1608 H680 M920 1608 H1010" stroke="#d8b878" stroke-width="2"/>
+<text x="800" y="1617" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" letter-spacing="7" fill="#8b6b42">SCAN ME</text>
+<text x="800" y="1673" text-anchor="middle" font-family="Georgia,serif" font-size="30" letter-spacing="4" fill="#4a1828">${event.dateLabel.replace(/^\w+, /, "").toUpperCase()}</text>
+<text x="800" y="1723" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" letter-spacing="2" fill="#8b6b42">${new URL(target).hostname}</text>
 </svg>`;
 const png = await sharp(Buffer.from(svg))
   .png({ compressionLevel: 9, palette: true })
